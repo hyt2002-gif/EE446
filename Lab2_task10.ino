@@ -23,23 +23,16 @@ const int PROXIMITY_THRESHOLD = 120;
 const unsigned long PRINT_INTERVAL_MS = 5000;
 unsigned long lastPrint = 0;
 
-// --------------------------------------------------
-// Microphone callback
-// --------------------------------------------------
 void onPDMdata() {
   int bytesAvailable = PDM.available();
   PDM.read(microphone_sample, bytesAvailable);
-  samples = bytesAvailable / 2;   // 2 bytes per short sample
+  samples = bytesAvailable / 2;   
 }
 
-// --------------------------------------------------
-// Setup
-// --------------------------------------------------
 void setup() {
   Serial.begin(115200);
   delay(1500);
 
-  // Start APDS9960 (light + proximity)
   if (!APDS.begin()) {
     Serial.println("Failed to initialize APDS9960 sensor.");
     while (1);
@@ -61,9 +54,6 @@ void setup() {
   Serial.println("Workspace awareness system started");
 }
 
-// --------------------------------------------------
-// Main loop
-// --------------------------------------------------
 void loop() {
   updateMicrophone();
   updateLightAndProximity();
@@ -76,9 +66,6 @@ void loop() {
   }
 }
 
-// --------------------------------------------------
-// Update microphone activity level
-// --------------------------------------------------
 void updateMicrophone() {
   if (samples > 0) {
     noInterrupts();
@@ -106,10 +93,6 @@ void updateMicrophone() {
   }
 }
 
-// --------------------------------------------------
-// Update light and proximity
-// bright_value stores the clear channel value
-// --------------------------------------------------
 void updateLightAndProximity() {
   if (APDS.colorAvailable()) {
     int r, g, b, c;
@@ -122,9 +105,6 @@ void updateLightAndProximity() {
   }
 }
 
-// --------------------------------------------------
-// Update motion from accelerometer change
-// --------------------------------------------------
 void updateMotion() {
   if (IMU.accelerationAvailable()) {
     float x, y, z;
@@ -154,9 +134,6 @@ void updateMotion() {
   }
 }
 
-// --------------------------------------------------
-// Classify and print
-// --------------------------------------------------
 void classifyAndPrint() {
   int sound = (microphone_level > SOUND_THRESHOLD) ? 1 : 0;
   int dark = (bright_value < BRIGHT_THRESHOLD) ? 1 : 0;
